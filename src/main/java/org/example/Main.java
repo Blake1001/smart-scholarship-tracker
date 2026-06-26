@@ -1,35 +1,46 @@
 package org.example;
 
-import org.example.api.CurrencyConverter;
-import org.example.api.FrankfurterCurrencyConverter;
+import org.example.model.ApplicationStatus;
 import org.example.model.Applicant;
+import org.example.model.Application;
 import org.example.model.EligibilityResult;
 import org.example.model.Scholarship;
-import org.example.strategy.NeedBasedEligibilityStrategy;
+import org.example.observer.ApplicantNotifier;
+import org.example.observer.AuditLogObserver;
+import org.example.observer.OfficerNotifier;
+import org.example.strategy.MeritEligibilityStrategy;
 
 /**
- * Temporary entry point used to try the live currency converter by hand.
+ * Temporary entry point used to try the Observer pattern by hand.
  * It will be replaced by the graphical interface in a later phase.
  */
 public class Main {
 
     public static void main(String[] args) {
-        CurrencyConverter converter = new FrankfurterCurrencyConverter();
-
-        // Quick direct test of the converter.
-        double usd = converter.convert(20000, "MYR", "USD");
-        System.out.println("20000 MYR = " + usd + " USD (live rate)");
-        System.out.println();
-
-        // The need-based rule now using the real, live converter.
         Applicant applicant = new Applicant("A001", "Sara", 3.8, 20000, "MYR");
-        NeedBasedEligibilityStrategy needRule =
-                new NeedBasedEligibilityStrategy(6000, "USD", converter);
-        Scholarship needScholarship =
-                new Scholarship("S002", "Need-Based Scholarship", needRule);
+        Scholarship meritScholarship =
+                new Scholarship("S001", "Merit Scholarship", new MeritEligibilityStrategy(3.5));
 
-        EligibilityResult result = needScholarship.checkEligibility(applicant);
-        System.out.println(needScholarship.getName() + " -> eligible: "
-                + result.isEligible() + " | " + result.getReason());
+        Application application = new Application("APP100", applicant, meritScholarship);
+
+        // Register the three observers.
+        application.addObserver(new ApplicantNotifier());
+        application.addObserver(new OfficerNotifier());
+        AuditLogObserver auditLog = new AuditLogObserver();
+        application.addObserver(auditLog);
+
+        // Decide the outcome, then change the status (this triggers the notifications).
+        EligibilityResult result = meritScholarship.checkEligibility(applicant);
+        ApplicationStatus decision =
+                result.isEligible() ? ApplicationStatus.ELIGIBLE : ApplicationStatus.INELIGIBLE;
+
+        System.out.println("Changing status...");
+        application.setStatus(decision);
+
+        System.out.println();
+        System.out.println("Audit log contents:");
+        for (String entry : auditLog.getLog()) {
+            System.out.println(" - " + entry);
+        }
     }
 }
