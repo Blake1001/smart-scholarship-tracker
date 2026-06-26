@@ -1,17 +1,27 @@
 package org.example;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
-public class Main {
-    public static void main(String[] args) {
-        //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-        // to see how IntelliJ IDEA suggests fixing it.
-        System.out.printf("Hello and welcome!");
+import org.example.model.Applicant;
+import org.example.model.EligibilityResult;
+import org.example.model.Scholarship;
+import org.example.strategy.MeritEligibilityStrategy;
 
-        for (int i = 1; i <= 5; i++) {
-            //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-            // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-            System.out.println("i = " + i);
-        }
+/**
+ * Temporary entry point used to try out the core classes by hand.
+ * It will be replaced by the graphical interface in a later phase.
+ */
+public class Main {
+
+    public static void main(String[] args) {
+        Applicant applicant = new Applicant("A001", "Sara", 3.8, 20000, "MYR");
+
+        Scholarship meritScholarship =
+                new Scholarship("S001", "Merit Scholarship", new MeritEligibilityStrategy(3.5));
+
+        EligibilityResult result = meritScholarship.checkEligibility(applicant);
+
+        System.out.println("Applicant: " + applicant.getName());
+        System.out.println("Scholarship: " + meritScholarship.getName());
+        System.out.println("Eligible: " + result.isEligible());
+        System.out.println("Reason: " + result.getReason());
     }
 }
