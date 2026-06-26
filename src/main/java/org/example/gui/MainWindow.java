@@ -2,6 +2,7 @@ package org.example.gui;
 
 import org.example.api.CurrencyConverter;
 import org.example.api.FrankfurterCurrencyConverter;
+import org.example.model.Application;
 import org.example.observer.ApplicantNotifier;
 import org.example.observer.OfficerNotifier;
 import org.example.service.ApplicationService;
@@ -37,21 +38,27 @@ public class MainWindow extends JFrame {
         JTabbedPane tabs = new JTabbedPane();
         ApplyPanel applyPanel = new ApplyPanel();
         ResultPanel resultPanel = new ResultPanel();
+        HistoryPanel historyPanel = new HistoryPanel();
         tabs.addTab("Apply", applyPanel);
         tabs.addTab("Result", resultPanel);
+        tabs.addTab("History", historyPanel);
 
         // Controller side
         ApplicationController controller =
                 new ApplicationController(service, factory, resultPanel);
 
-        // Wire the button: on click, process the form and switch to the Result tab.
+        // Wire the button: process the form, record it in history, show result.
         applyPanel.onSubmit(event -> {
-            controller.submit(
+            Application application = controller.submit(
                     applyPanel.getName(),
                     applyPanel.getGpaText(),
                     applyPanel.getIncomeText(),
                     applyPanel.getCurrency(),
                     applyPanel.getScholarshipName());
+
+            if (application != null) {
+                historyPanel.addApplication(application);
+            }
             tabs.setSelectedComponent(resultPanel);
         });
 
