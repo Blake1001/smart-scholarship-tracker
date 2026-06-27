@@ -48,6 +48,15 @@
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.8.12</version>
+                <configuration>
+                    <excludes>
+                        <exclude>org/example/Main.class</exclude>
+                        <exclude>org/example/gui/MainWindow.class</exclude>
+                        <exclude>org/example/gui/ApplyPanel.class</exclude>
+                        <exclude>org/example/gui/ResultPanel.class</exclude>
+                        <exclude>org/example/gui/HistoryPanel.class</exclude>
+                    </excludes>
+                </configuration>
                 <executions>
                     <execution>
                         <id>prepare-agent</id>
